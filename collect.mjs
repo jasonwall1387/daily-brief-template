@@ -298,7 +298,7 @@ async function fetchBrief() {
   const vault = findVault();
   if (!vault) throw new Error("Obsidian vault not found. Set vaultPath in config.json.");
 
-  // Pull ALL unfetched briefs, not just today's, so a missed run self-heals on the next one.
+  // Pull unfetched briefs (up to 3 per run), not just today's, so a missed run self-heals.
   const r = await d1("SELECT id, brief_date, markdown FROM daily_brief WHERE fetched_at IS NULL ORDER BY id DESC LIMIT 3");
   if (!r.results.length) {
     console.log("No new brief to fetch.");

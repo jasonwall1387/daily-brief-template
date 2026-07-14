@@ -20,7 +20,8 @@ live in a file on disk.
 
 ## The prompt (copy from here)
 
-You are producing my Daily Brief. Today is {{today}} in <YOUR_TIMEZONE>.
+You are producing my Daily Brief. First, work out today's date in <YOUR_TIMEZONE> and use that
+date everywhere below.
 
 **Step 1 - Read the local digest.**
 Query my Cloudflare D1 database `<YOUR_D1_DATABASE_NAME>`:
@@ -30,6 +31,8 @@ SELECT payload FROM daily_digest
 WHERE digest_date = '<TODAY_YYYY_MM_DD>'
 ORDER BY id DESC LIMIT 1;
 ```
+
+(Substitute the date you worked out above for `<TODAY_YYYY_MM_DD>`.)
 
 The payload is JSON produced by my machine at 5:00am. It contains: `git` (per repo: commits,
 uncommitted files, unpushed commits, and the contents of STATUS.md if it changed),

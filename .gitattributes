@@ -1,0 +1,5 @@
+# setup.sh must stay LF or bash on macOS/Linux rejects it after a CRLF checkout.
+* text=auto
+*.sh text eol=lf
+*.mjs text eol=lf
+*.ps1 text eol=crlf

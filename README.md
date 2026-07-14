@@ -52,7 +52,8 @@ the middle that both halves can reach: a **Cloudflare D1 database**.
 
 **Neither half can break the other.** If your machine was off, the cloud run still produces a
 connector-only brief and stamps it `LOCAL DATA STALE`. If the cloud run is missed, digests just
-accumulate, and the next fetch picks up *every* unfetched brief, not just today's.
+accumulate, and the fetcher catches up on unfetched briefs the next time it runs (the most
+recent three per run), not just today's.
 
 ### Alternatives that did not work
 
