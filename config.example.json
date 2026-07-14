@@ -1,0 +1,16 @@
+{
+  "machine": "my-laptop",
+  "timezone": "America/Chicago",
+  "devRoot": "C:\\code",
+  "watchPaths": [
+    { "label": "artifacts", "path": "" }
+  ],
+  "vaultPath": "auto",
+  "vaultSearchRoots": ["C:\\Users\\you\\Documents"],
+  "briefFolder": "daily-briefs",
+  "lookbackHours": 26,
+  "cfAccountId": "<YOUR_CLOUDFLARE_ACCOUNT_ID>",
+  "d1DatabaseId": "<YOUR_D1_DATABASE_ID>",
+  "cfApiToken": "",
+  "tokenCommand": ""
+}

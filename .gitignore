@@ -1,0 +1,12 @@
+# Your real config: holds the Cloudflare token, your account and database IDs, and your paths.
+config.json
+
+# Your filled-in copy of the cloud prompt, if you keep it next to the code.
+trigger-prompt.local.md
+
+.env
+.env.local
+*.local
+collect.log
+node_modules/
+.DS_Store
