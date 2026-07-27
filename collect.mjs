@@ -45,7 +45,10 @@ function getToken() {
   if (process.env.CF_API_TOKEN) return process.env.CF_API_TOKEN;
   if (cfg.cfApiToken) return cfg.cfApiToken;
   if (cfg.tokenCommand) {
-    // Optional: shell out to a secret manager, e.g. "op read op://vault/cloudflare/token"
+    // Shell out to a secret manager, e.g. "op read op://vault/cloudflare/token" or
+    // "infisical secrets get CF_D1_TOKEN --projectId <id> --env=prod --path=/ --plain --silent".
+    // Make the command fully qualified: a bare `infisical secrets get` resolves the CLI
+    // defaults (env=dev, path=/) and quietly returns nothing when the secret lives elsewhere.
     const t = sh(cfg.tokenCommand);
     if (t) return t.split(/\r?\n/).pop().trim();
   }

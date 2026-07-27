@@ -121,6 +121,27 @@ chmod +x setup.sh && ./setup.sh
 Setup prompts for the token, resolves your account ID, does a dry run, does one real collect to
 prove the write path, and registers both scheduled jobs (05:00 collect, 06:00 fetch).
 
+**Where the token lives.** At runtime the collector checks, in order: the `CF_API_TOKEN`
+environment variable, `cfApiToken` in `config.json`, then `tokenCommand` (a shell command that
+prints the token - point it at your secret manager). When storing, setup prefers the safest
+option it can find:
+
+- On **Windows**: an existing `tokenCommand` is verified and left alone; else, if the Infisical
+  CLI is installed, the token is stored as the `CF_D1_TOKEN` secret and the matching
+  `tokenCommand` is written into `config.json`; only as a last resort does setup persist a
+  `CF_API_TOKEN` user environment variable, and it warns when it does (gotcha 10).
+- On **macOS / Linux**: an existing `tokenCommand` is left alone; else the token is written into
+  `config.json` (gitignored, mode 600).
+
+Whatever secret manager you use, make `tokenCommand` fully qualified. With Infisical that means:
+
+```bash
+infisical secrets get CF_D1_TOKEN --projectId <your-project-id> --env=prod --path=/ --plain --silent
+```
+
+A bare `infisical secrets get CF_D1_TOKEN --plain` resolves the CLI defaults (`env=dev`,
+`path=/`) and silently returns nothing when the secret lives anywhere else (gotcha 11).
+
 Check it by hand any time:
 
 ```bash
@@ -173,6 +194,18 @@ Every one of these cost real time to find. They are the actual content of this r
 9. **`2>nul` is cmd.exe syntax.** Shipped in the original Windows-only collector, it silently
    creates a junk file called `nul` on macOS and Linux. Removed here: the collector already
    discards stderr.
+
+10. **A persisted `CF_API_TOKEN` hijacks every wrangler command on the machine.** wrangler reads
+    `CF_API_TOKEN` as a legacy alias of `CLOUDFLARE_API_TOKEN`, and an environment token
+    silently outranks `wrangler login`. Every deploy from that machine then authenticates as
+    this narrow D1 token and fails in confusing ways. That is why setup prefers `tokenCommand`
+    or Infisical storage and only falls back to the env var with a warning.
+
+11. **A bare `infisical secrets get NAME --plain` looks in `env=dev`, `path=/`.** Those are the
+    CLI defaults, so when the secret lives in another environment or folder the command quietly
+    prints nothing and the collector reports no token. Pass `--projectId`, `--env`, and
+    `--path` explicitly in `tokenCommand`, plus `--silent` so CLI banners cannot pollute the
+    captured value.
 
 ---
 
