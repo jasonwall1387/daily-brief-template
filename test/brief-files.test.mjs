@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { cpSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { validateBriefDate, writeBriefFile } from "../brief-files.mjs";
 
@@ -89,8 +89,9 @@ for (const valid of [false, true]) {
         appendFileSync(${JSON.stringify(trace)},JSON.stringify(sql)+'\\n');
         return {json:async()=>({success:true,result:[{results:${JSON.stringify([row(valid ? "2026-09-05" : "../../escaped")])}}]})};};`);
     const env = { ...process.env }; delete env.CF_API_TOKEN; delete env.NODE_OPTIONS;
-    const run = spawnSync(process.execPath, ["--import", preload, join(root, "collect.mjs"), "fetch-brief"], { env, encoding: "utf8", timeout: 5000 });
+    const run = spawnSync(process.execPath, ["--import", pathToFileURL(preload).href, join(root, "collect.mjs"), "fetch-brief"], { env, encoding: "utf8", timeout: 5000 });
     assert.equal(run.status, valid ? 0 : 1, run.stderr);
+    if (!valid) assert.match(run.stderr, /Invalid brief_date/);
     const queries = readFileSync(trace, "utf8").trim().split("\n").map(JSON.parse);
     assert.equal(queries.filter(sql => sql.startsWith("UPDATE")).length, valid ? 1 : 0);
     assert.equal(existsSync(join(root, "escaped-daily-brief.md")), false);
