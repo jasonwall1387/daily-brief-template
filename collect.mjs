@@ -11,10 +11,11 @@
 // Cloudflare token, in priority order: env CF_API_TOKEN, config.cfApiToken, config.tokenCommand.
 
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir, hostname } from "node:os";
+import { writeBriefFile } from "./brief-files.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = join(HERE, "config.json");
@@ -309,10 +310,7 @@ async function fetchBrief() {
   }
 
   for (const row of r.results) {
-    const dir = join(vault, cfg.briefFolder || "daily-briefs");
-    mkdirSync(dir, { recursive: true });
-    const file = join(dir, `${row.brief_date}-daily-brief.md`);
-    writeFileSync(file, row.markdown, "utf8");
+    const file = writeBriefFile(vault, cfg.briefFolder || "daily-briefs", row);
     await d1("UPDATE daily_brief SET fetched_at = datetime('now') WHERE id = ?", [String(row.id)]);
     console.log(`Brief written: ${file}`);
   }

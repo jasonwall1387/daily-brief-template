@@ -222,6 +222,7 @@ Every one of these cost real time to find. They are the actual content of this r
 | File | What it is |
 |---|---|
 | `collect.mjs` | The local collector and fetcher. Zero dependencies. Modes: `collect`, `fetch-brief`, `dry-run`. |
+| `brief-files.mjs` | Validates cloud-supplied dates and writes complete notes inside the vault. Keep it alongside `collect.mjs`. |
 | `config.example.json` | Copy to `config.json` (gitignored) and fill in. |
 | `schema.sql` | The two D1 tables. |
 | `setup.ps1` / `setup.sh` | One-time setup: token, account ID, test run, scheduled jobs. |
@@ -241,10 +242,20 @@ The parts most worth editing:
 
 ## Security
 
+The fetcher accepts only real calendar dates in `YYYY-MM-DD` format. `briefFolder` must
+be relative to the configured vault. Existing links below the vault root, including a
+linked output file, are rejected. Notes are written to a temporary file in the destination
+folder and renamed into place; a D1 row is acknowledged only after that write succeeds.
+The explicitly configured vault may itself resolve through a link. These checks constrain
+cloud-supplied data; they do not sandbox another local process with access to your vault.
+
 `config.json` holds your Cloudflare token and is gitignored. Never commit it. If you fork this
 and publish it, run [SANITIZATION.md](./SANITIZATION.md) first: your account ID, database ID,
 paths, project names and email addresses all leak through config and examples if you are not
 deliberate about it.
+
+Run the regression tests with `node --test` from this repository. They use temporary
+folders and mocked D1 responses, including traversal, symlink, and failed-write cases.
 
 ## License
 
